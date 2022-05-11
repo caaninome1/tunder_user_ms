@@ -22,12 +22,12 @@ public class LoginController {
         return loginService.login(user);
     }
 
-    @GetMapping()
+    @GetMapping(path = "/token")
     public Boolean isValidToken(@RequestBody LoginModel login){
         return loginService.isValidToken(login);
     }
 
-    @GetMapping()
+    @GetMapping(path = "/refresh")
     public LoginModel refreshToken(@RequestBody LoginModel login){
         return loginService.refeshToken(login);
     }
