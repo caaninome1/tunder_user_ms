@@ -49,6 +49,7 @@ public class TokenModel {
         return token;
     }
     public void setToken(String token) {
+        // DELETE ---> generate Token
         this.token = token;
     }
     public void setUserID(String userID) {
@@ -61,6 +62,16 @@ public class TokenModel {
         String token = base64Encoder.encodeToString(randomBytes);
         this.token = token;
         return token;
+    }
+
+    public Boolean isValidToken (String token){
+        if(this.token.equals(token)) return true;
+        return false;
+    }
+
+    public Date refreshDate (){
+        //TODO
+        return null;
     }
 
 }
