@@ -28,8 +28,7 @@ public class LoginService {
     TokenRopository tokenRopository;
 
     public TokenModel login(UserModel user){
-        //TODO
-        //get user by name (set names as unique value)\
+
         Optional<UserModel> dbUser;
         dbUser = userRepository.findByName(user.getName());
         if (dbUser.isPresent()){
