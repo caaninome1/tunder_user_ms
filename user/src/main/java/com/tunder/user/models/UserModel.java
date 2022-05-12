@@ -45,5 +45,9 @@ public class UserModel {
     public void setId(Long id) {
         this.id = id;
     }
+    public String encrypt() {
+        //TODO
+        return this.password;
+    }
     
 }

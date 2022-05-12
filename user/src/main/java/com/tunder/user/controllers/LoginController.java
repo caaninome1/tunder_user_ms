@@ -1,6 +1,7 @@
 package com.tunder.user.controllers;
 
 import com.tunder.user.models.LoginModel;
+import com.tunder.user.models.TokenModel;
 import com.tunder.user.models.UserModel;
 import com.tunder.user.services.LoginService;
 
@@ -18,17 +19,17 @@ public class LoginController {
     LoginService loginService;
 
     @PostMapping()
-    public LoginModel login(@RequestBody UserModel user){
+    public TokenModel login(@RequestBody UserModel user){
         return loginService.login(user);
     }
 
     @GetMapping(path = "/token")
-    public Boolean isValidToken(@RequestBody LoginModel login){
-        return loginService.isValidToken(login);
+    public Boolean isValidToken(@RequestBody TokenModel token){
+        return loginService.isValidToken(token);
     }
 
     @GetMapping(path = "/refresh")
-    public LoginModel refreshToken(@RequestBody LoginModel login){
-        return loginService.refeshToken(login);
+    public TokenModel refreshToken(@RequestBody TokenModel token){
+        return loginService.refeshToken(token);
     }
 }
