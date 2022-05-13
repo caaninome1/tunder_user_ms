@@ -13,6 +13,7 @@ import com.tunder.user.repositories.TokenRopository;
 import com.tunder.user.repositories.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,12 +33,15 @@ public class LoginService {
         Optional<UserModel> dbUser;
         dbUser = userRepository.findByName(user.getName());
         if (dbUser.isPresent()){
-            if(user.encrypt().equals(dbUser.get().getPassword())){
+            if (BCrypt.checkpw(user.getPassword(), dbUser.get().getPassword())){
+                System.out.println("It matches");
                 Optional<TokenModel> token = tokenRopository.findByuserID(user.getId());
                 if (token.isPresent()){
                     return tokenRopository.save(token.get().refreshToken());
-                } 
-            }
+                } else{
+                    // TODO generate new token and save it
+                }
+            }      
         }
         return null;
     }

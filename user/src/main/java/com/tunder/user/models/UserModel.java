@@ -7,6 +7,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.security.crypto.bcrypt.BCrypt;
+
 @Entity
 @Table(name = "user")
 
@@ -45,8 +47,8 @@ public class UserModel {
     public void setId(Long id) {
         this.id = id;
     }
-    public String encrypt() {
-        //TODO
+    public String encryptPassword() { 
+        this.password = BCrypt.hashpw(this.password, BCrypt.gensalt());
         return this.password;
     }
     

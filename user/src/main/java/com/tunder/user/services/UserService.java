@@ -14,11 +14,13 @@ public class UserService {
     @Autowired
     UserRepository userRepository;
     
+
     public ArrayList<UserModel> getAllUsers(){
         return (ArrayList<UserModel>) userRepository.findAll();
     }
 
     public UserModel saveUser(UserModel user) {
+        user.encryptPassword();
         return userRepository.save(user);
     }
 
