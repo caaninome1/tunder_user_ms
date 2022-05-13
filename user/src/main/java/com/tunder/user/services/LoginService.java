@@ -34,12 +34,15 @@ public class LoginService {
         dbUser = userRepository.findByName(user.getName());
         if (dbUser.isPresent()){
             if (BCrypt.checkpw(user.getPassword(), dbUser.get().getPassword())){
-                System.out.println("It matches");
                 Optional<TokenModel> token = tokenRopository.findByuserID(user.getId());
                 if (token.isPresent()){
                     return tokenRopository.save(token.get().refreshToken());
                 } else{
-                    // TODO generate new token and save it
+                    TokenModel newtoken = new TokenModel();
+                    newtoken.refreshToken();
+                    newtoken.setUserID(dbUser.get().getId());
+                    tokenRopository.save(newtoken);
+                    return newtoken;
                 }
             }      
         }
