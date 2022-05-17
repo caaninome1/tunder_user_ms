@@ -8,7 +8,11 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TokenRopository extends CrudRepository <TokenModel, Long>{
-    
-    Optional<TokenModel> findByuserID (Long ID);
+public interface TokenRopository extends CrudRepository<TokenModel, Long> {
+
+    Optional<TokenModel> findByuserID(Long ID);
+
+    boolean existsByToken(String token);
+
+    Optional<TokenModel> findByToken(String token);
 }
