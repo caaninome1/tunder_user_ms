@@ -6,8 +6,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
-import javax.naming.ldap.LdapContext;
-
 import com.tunder.user.models.TokenModel;
 import com.tunder.user.models.UserModel;
 import com.tunder.user.repositories.LoginRepository;
@@ -15,6 +13,7 @@ import com.tunder.user.repositories.TokenRopository;
 import com.tunder.user.repositories.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.filter.AndFilter;
@@ -37,28 +36,34 @@ public class LoginService {
     private static final SecureRandom secureRandom = new SecureRandom();
     private static final Base64.Encoder base64Encoder = Base64.getUrlEncoder();
 
-    public TokenModel login(UserModel user) {
+    @Value("${ldap.url}")
+    private String ldapUrl;
+    @Value("${ldap.base}")
+    private String ldapBase;
+    @Value("${ldap.user}")
+    private String ldapUser;
+    @Value("${ldap.password}")
+    private String ldapPassword;
 
-        //find user on  ldap
-        String url = "ldap://localhost:389";
-        String base = "dc=tunder,dc=unal,dc=edu,dc=co";
-        String userDn = "cn=admin,dc=tunder,dc=unal,dc=edu,dc=co";
-        String password = "admin";
+    public TokenModel login(UserModel user) {
         try {
             LdapContextSource ctxSrc = new LdapContextSource();
-            ctxSrc.setUrl(url);
-            ctxSrc.setBase(base);
-            ctxSrc.setUserDn(userDn);
-            ctxSrc.setPassword(password);
+            ctxSrc.setUrl(ldapUrl);
+            ctxSrc.setBase(ldapBase);
+            ctxSrc.setUserDn(ldapUser);
+            ctxSrc.setPassword(ldapPassword);
             ctxSrc.afterPropertiesSet();
             LdapTemplate lt = new LdapTemplate(ctxSrc);
             AndFilter filter = new AndFilter();
-            filter.and(new EqualsFilter("cn", user.getName()));
+            filter.and(new EqualsFilter("cn", user.getEmail()));
             @SuppressWarnings("unchecked")
             List<String> list = lt.search("", filter.encode(), new ContactAttributeMapperJSON());
-            if (!list.toString().contains(user.getName())) return null;
+            System.out.println("list: " + list);
+            if (list.size() != 1)
+                return null;
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
 
         Optional<UserModel> dbUser;
