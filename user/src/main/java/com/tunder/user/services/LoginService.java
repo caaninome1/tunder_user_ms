@@ -3,7 +3,11 @@ package com.tunder.user.services;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
+
+import javax.naming.ldap.LdapContext;
+
 import com.tunder.user.models.TokenModel;
 import com.tunder.user.models.UserModel;
 import com.tunder.user.repositories.LoginRepository;
@@ -11,6 +15,10 @@ import com.tunder.user.repositories.TokenRopository;
 import com.tunder.user.repositories.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.support.LdapContextSource;
+import org.springframework.ldap.filter.AndFilter;
+import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +39,31 @@ public class LoginService {
 
     public TokenModel login(UserModel user) {
 
+        //find user on  ldap
+        String url = "ldap://localhost:389";
+        String base = "dc=tunder,dc=unal,dc=edu,dc=co";
+        String userDn = "cn=admin,dc=tunder,dc=unal,dc=edu,dc=co";
+        String password = "admin";
+        try {
+            LdapContextSource ctxSrc = new LdapContextSource();
+            ctxSrc.setUrl(url);
+            ctxSrc.setBase(base);
+            ctxSrc.setUserDn(userDn);
+            ctxSrc.setPassword(password);
+            ctxSrc.afterPropertiesSet();
+            LdapTemplate lt = new LdapTemplate(ctxSrc);
+            AndFilter filter = new AndFilter();
+            filter.and(new EqualsFilter("cn", user.getName()));
+            @SuppressWarnings("unchecked")
+            List<String> list = lt.search("", filter.encode(), new ContactAttributeMapperJSON());
+            if (!list.toString().contains(user.getName())) return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Optional<UserModel> dbUser;
         dbUser = userRepository.findByEmail(user.getEmail());
+
         if (dbUser.isPresent()) {
             if (BCrypt.checkpw(user.getPassword(), dbUser.get().getPassword())) {
                 Optional<TokenModel> token = tokenRopository.findByuserID(user.getId());
